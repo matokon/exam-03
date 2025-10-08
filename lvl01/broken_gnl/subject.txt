@@ -1,0 +1,35 @@
+gnl (brk_gnl):
+Allowed functions: read, strlen, malloc, calloc, realloc, free, perror
+----------------------------------------------------------------------
+
+Write a function that returns **one line at a time** from a file descriptor.
+
+**Prototype:**
+
+```
+char *brk_gnl(int fd);
+```
+
+**Requirements:**
+
+* Each call returns the next line from `fd`.
+  If a newline `'\n'` is read, it **must** be included.
+* At EOF, if there is leftover data (no `'\n'`), return it once; then return `NULL`.
+* On error (`read == -1` or allocation failure), return `NULL`.
+* The returned string must be **heap-allocated** (caller frees it).
+* Reading must use chunks of size `BUFFER_SIZE`.
+  If not defined, assume `BUFFER_SIZE = 42`.
+
+**Example (usage):**
+
+```
+while ((line = brk_gnl(fd)) != NULL) {
+    printf("%s", line);
+    free(line);
+}
+```
+
+**Notes:**
+
+* Single-FD version (state kept static inside the function).
+* If you write a test program, on error print `"Error: "` with `perror` and return `1`.
