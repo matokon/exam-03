@@ -1,0 +1,39 @@
+//subject has been changed a bit (allowed functions)
+
+Assignment name  : permute
+Expected files   : *.c *.h
+Allowed functions: write, strdup, strlen, malloc, free
+
+-------------------------------------------------------------------------
+
+Write a program that will print all the permutations of the string given
+as argument.
+
+Each permutation must be printed on a separate line.
+
+The order of the permutations is not important.
+
+If the string contains duplicate characters, you still have to print all
+possible arrangements (including duplicates).
+
+If there is no argument or the string is empty, the program should not print anything.
+
+Example:
+
+$> ./permute abc | cat -e
+abc$
+acb$
+bac$
+bca$
+cba$
+cab$
+
+$> ./permute ab | cat -e
+ab$
+ba$
+
+$> ./permute a | cat -e
+a$
+
+$> ./permute "" | cat -e
+$>
