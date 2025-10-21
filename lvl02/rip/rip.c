@@ -41,6 +41,6 @@ int main(int argc, char **argv)
     if(argc < 2)
         return 1;
     int to_fix = checking_parentheses(argv[1]);
-    solve();
+    solve(argv[1], to_fix, 0, 0);
     return 0;
 }
