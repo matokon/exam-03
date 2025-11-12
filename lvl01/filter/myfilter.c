@@ -1,77 +1,67 @@
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 
-int compare(char *buffor, char *to_compare, int len_of_compare)
-{
-    int x = 0;
-    while(x < len_of_compare && buffor[x] == to_compare[x])
-        x++;
-    if(x == len_of_compare)
-        return 1;
-    else
-        return 0;
+int compare(char *str1, char *str_cmp, int len_of_cmp){
+    for(int i = 0; i < len_of_cmp; i++)
+    {
+        if(str_cmp[i] != str1[i])
+            return 1;
+    }
+    return 0;
 }
-
 
 int main(int argc, char **argv)
 {
-    if(argc != 2 || argv[1] == NULL || strlen(argv[1]) == 0)
+    if(argc != 2 || strlen(argv[1]) == 0)
         return 1;
-    char *to_compare;
     char *buffor = malloc(10000);
-    if(!buffor)
-    {
-        perror("Malloc error!");
-        free(buffor);
-        return 1;
-    }
-    int len_to_compare;
+    if (!buffor) { perror("malloc"); return 1; }
+    char *to_cmp;
+    to_cmp = argv[1];
+    int len_of_cmp = strlen(to_cmp);
     char letter;
-    int helper;
-    int i;
-
-    to_compare = argv[1];
-    len_to_compare = strlen(to_compare);
-    i = 0;
-    
-    helper = read(0, &letter, 1);
+    int helper = 0;
+    helper = read(0,&letter,1);
     if(helper < 0)
     {
         free(buffor);
-        perror("Error");
-        return 1;
+        perror("read error");
+        return(1);
     }
+    int i = -1;
     while(helper > 0)
     {
-        buffor[i++] = letter;
-        helper = read(0, &letter, 1);
+        buffor[++i] = letter;
+        helper = read(0,&letter,1);
     }
     if(helper < 0)
-    {
-        free(buffor);
-        perror("Error");
-        return 1;
-    }
-    buffor[i] = '\0';
-
-    int len_helper;
+        {
+            free(buffor);
+            perror("read error");
+            return(1);
+        }
+    buffor[i+1] = '\0';
     i = -1;
+    int len_of_buffor = strlen(buffor);
+    int len_helper;
     while(buffor[++i] != '\0')
     {
-        if(compare(&buffor[i], to_compare, len_to_compare) == 1)
+        if(i + len_of_cmp <= len_of_buffor && compare(&buffor[i], to_cmp, len_of_cmp) == 0)
         {
-            i = i + len_to_compare-1;
-            len_helper = len_to_compare;
+            i = i + len_of_cmp -1;
+            len_helper = len_of_cmp;
             while(len_helper != 0)
             {
-                printf("%s","*");
+                write(1,"*",1);
                 len_helper--;
             }
         }
         else
-            printf("%c",buffor[i]);
+        {
+            write(1,&buffor[i],1);
+        }
     }
     free(buffor);
     return 0;

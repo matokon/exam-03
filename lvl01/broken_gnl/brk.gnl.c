@@ -1,68 +1,203 @@
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
+#include "get_next_line.h"
 
-#ifndef BUFFER_SIZE
-# define BUFFER_SIZE 42
-#endif
-
-char *ft_strdup(char *string)
+char *ft_strchr(char *s, int c)
 {
-    int i = -1;
-    char *copy_of_str = malloc(strlen(string) + 1);
+    int i = 0;
 
-    while(string[++i])
-    {
-        copy_of_str[i] = string[i];
-    }
-    copy_of_str[i] = '\0';
-
-    return copy_of_str;
+    if (!s || !*s)
+        return (NULL);
+    while (s[i] != c && s[i])
+		i++;
+	if (s[i] == c)
+		return s + i;
+	else
+		return NULL;
 }
 
-char *brk_gnl(int fd)
+void *ft_memcpy(void *dest, const void *src, size_t n)
 {
-    static char buffer[BUFFER_SIZE];
-	static int	read_digit;
-	static int	read_position;
-	char	line[70000];
-	int		i = 0;
+    size_t i;
 
-    if(fd < 0)
-        return NULL;
+    // if (dest == src)
+    //     return (dest);
+    // if (dest < src)
+    // {
+    //     i = 0;
+    //     while (i < n)
+    //     {
+    //         ((char*)dest)[i] = ((char*)src)[i];
+    //         i++;
+    //     }
+    // }
+    // else
+    // {
+    //     i = n;
+    //     while (i-- > 0)
+    //     {
+    //         ((char*)dest)[i] = ((char*)src)[i];
+    //     }
+    // }
+    i = 0;
 
-    while(1)
+    while (i < n)
     {
-        if(read_digit <= read_position)
+        ((char *)dest)[i] = ((char *)src)[i];
+        i++;
+    }
+    return dest;
+}
+
+size_t  ft_strlen(char *s)
+{
+    size_t ret = 0;
+
+    if (!s || !*s)
+        return (0);
+    while (*s)
+	{
+        // printf("ft_strlen\n");
+		s++;
+		ret++;
+	}
+    return (ret);
+}
+
+int str_append_mem(char **s1, char *s2, size_t size2)
+{
+    size_t size1 = ft_strlen(*s1);
+    char *tmp = malloc(size2 + size1 + 1);
+    if (!tmp)
+        return 0;
+    ft_memcpy(tmp, *s1, size1);
+    ft_memcpy(tmp + size1, s2, size2);
+    tmp [size1 + size2] = 0;
+    free(*s1);
+    *s1 = tmp;
+    return 1;
+}
+
+int str_append_str(char **s1, char *s2)
+{
+    return str_append_mem(s1, s2, ft_strlen(s2));
+}
+
+void *ft_memmove(void *dest, const void *src, size_t n)
+{
+    size_t i;
+
+    if (dest == src)
+        return (dest);
+    if (dest < src)
+    {
+        i = 0;
+        while (i < n)
         {
-            read_digit = read(fd, buffer, BUFFER_SIZE);
-            read_position = 0;
-            if(read_digit <= 0)
-                break;
+            // printf("ft_memmove\n");
+            ((char*)dest)[i] = ((char*)src)[i];
+            i++;
         }
-        line[i++] = buffer[read_position++];
-        if(buffer[read_position - 1] == '\n')
-            break;
     }
-    line[i] = '\0';
-    if(i == 0)
-        return  NULL;
-    return ft_strdup(line);
+    else
+    {
+        i = n;
+        while (i-- > 0)
+        {
+            // printf("ft_memmove\n");
+            ((char*)dest)[i] = ((char*)src)[i];
+        }
+    }
+    return dest;
+    // if (dest > src)
+    //     return ft_memcpy(dest, src, n);
+    // else if (dest == src)
+    //     return dest;
+	// size_t i = ft_strlen((char *)src) - 1;
+    // while (i >= 0)
+	// {
+	// 	((char *)dest)[i] = ((char *)src)[i];
+	// 	i--;
+	// }
+    // return dest;
 }
 
-int main(void)
+char    *get_next_line(int fd)
 {
-    int fd = open("file.txt", O_RDONLY);
-    if (fd < 0) { perror("open"); return 1; }
+    static char b[BUFFER_SIZE + 1] = "";
+    char *ret = NULL;
 
-    char *s;
-    int   n = 1;
-    while ((s = brk_gnl(fd)) != NULL) {
-        printf("LINE %d: %s", n++, s);
-        free(s);
+
+    while (1)
+    {
+        // printf("gnl\n");
+        char *tmp = ft_strchr(b, '\n');
+        if (tmp)
+        {
+            if (!str_append_mem(&ret, b, tmp - b + 1))
+            {
+                free(ret);
+                return NULL;
+            }
+            // printf("printing b: %s\n", b);
+            // printf("printing tmp + 1: %s\n", tmp + 1);
+            ft_memmove(b, tmp + 1, ft_strlen(tmp + 1) + 1);
+            return ret;
+        }
+        if (!str_append_str(&ret, b))
+            return (free(ret), NULL);
+        int read_ret = read(fd, b, BUFFER_SIZE);
+        if (read_ret <= 0)
+        {
+            if (read_ret == -1 || (!ret || !*b))
+                return (free(ret), NULL);
+            b[0] = 0;
+            if (read_ret == 0)
+                break ;
+
+            // return (ret);
+        }
+        b[read_ret] = 0;
     }
-    close(fd);
-    return 0;
+    return ret;
+    // if (!str_append_mem(&ret, b, tmp - b + 1))
+    // {
+    //     free(ret);
+    //     return NULL;
+    // }
+    // return ret;
 }
+
+// char    *get_next_line(int fd)
+// {
+//     static char b[BUFFER_SIZE + 1] = "";
+//     char *ret = NULL;
+
+//     char *tmp = ft_strchr(b, '\n');
+//     while (!tmp)
+//     {
+//         if (!str_append_str(&ret, b))
+//             return NULL;
+//         int read_ret = read(fd, b, BUFFER_SIZE);
+//         if (read_ret == -1)
+//             return NULL;
+//         b[read_ret] = 0;
+//     }
+//     if (!str_append_mem(&ret, b, tmp - b + 1))
+//     {
+//         free(ret);
+//         return NULL;
+//     }
+//     return ret;
+// }
+
+// int main()
+// {
+//     int fd = open("test.txt", O_RDONLY);
+//     char    *line = NULL;
+    
+//     while ((line = get_next_line(fd)) != 0)
+//     {
+//         printf("%s", line);
+//         free(line);
+//     }
+//     return 0;
+// }

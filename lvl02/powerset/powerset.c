@@ -1,35 +1,34 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
-int sum_of_subset(int *subset, int size)
-{
+int sum_subset(int *subset, int size){
     int sum = 0;
     for(int i = 0; i < size; i++)
     {
-        sum += subset[i];
+        sum = sum + subset[i];
     }
     return sum;
 }
 
-void printing_subset(int *subset, int size)
-{
+void print_subset(int *subset, int size){
     for(int i = 0; i < size; i++)
     {
-        printf("%d", subset[i]);
+        char c = '0' + subset[i];
+        write(1, &c, 1);
         if(i < size - 1)
-            printf(" ");
+            write(1, " ", 1);
     }
-    printf("\n");
+    write(1, "\n", 1);
 }
 
-void solve(int *numbers, int *subset, int sub_size ,int n, int size, int index)
+void solve(int *numbers, int *subset, int sub_size, int n, int size, int index)
 {
     if(index == size)
-    {
-        if(sum_of_subset(subset, sub_size) == n)
-            printing_subset(subset, sub_size);
+    {   
+        if(sum_subset(subset, sub_size) == n)
+            print_subset(subset, sub_size);
         return ;
     }
     subset[sub_size] = numbers[index];
@@ -37,16 +36,15 @@ void solve(int *numbers, int *subset, int sub_size ,int n, int size, int index)
     solve(numbers, subset, sub_size, n, size, index + 1);
 }
 
-int  main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-    if(argc == 1)
+    if(argc < 2)
         return 1;
     int size = argc - 2;
-    int n =  atoi(argv[1]);
-    int *numbers = malloc(sizeof(int)* size);
-    int *subset = malloc(sizeof(int)* size);
-    for(int i = 0; i < size; i++)
-    {
+    int *numbers = malloc(sizeof(int) * size);
+    int *subset = malloc(sizeof(int) * size);
+    int n = atoi(argv[1]);
+    for(int i = 0; i < size; i++){
         numbers[i] = atoi(argv[i + 2]);
     }
     solve(numbers, subset, 0, n, size, 0);

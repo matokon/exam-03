@@ -1,62 +1,52 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
-void swapping(char *el1, char *el2)
+void swap1(char *el1, char *el2)
 {
-    char temp;
-    temp = *el1;
+    char tmp = *el1;
     *el1 = *el2;
-    *el2 = temp;
+    *el2 = tmp;
 }
 
-void printing_func(char *word, int len)
+void sorting(char *arg){
+    for(int i = 0; arg[i]; i++)
+    {
+        for(int j = 0; arg[j]; j++)
+        {
+            if(arg[i] > arg[j])
+                swap1(&arg[i], &arg[j]);
+        }
+    }
+}
+
+void printf_f(char *arg, int len_of_argv)
 {
-    write(1,word,len);
+    write(1, arg, len_of_argv);
     write(1,"\n",1);
 }
-void sorting(char *s)
+void solve1(char *arg, int len_of_argv, int position)
 {
-    for(int i = 0; s[i]; i++)
+    if(position == len_of_argv)
     {
-        for(int j = i + 1; s[j]; j++)
-        {
-            if(s[i] > s[j])
-            {
-                swapping(&s[i], &s[j]);
-            }
-        }
-    }
-}
-void solve(char *arg, int start, int length)
-{
-    if(start == length)
-    {
-        printing_func(arg, length);
+        printf_f(arg, len_of_argv);
         return ;
     }
-    else
+    for(int i = position; arg[i]; i++)
     {
-        for(int x = start; x < length; x++)
-        {
-            swapping(&arg[start], &arg[x]);     
-            solve(arg, start + 1, length);
-            swapping(&arg[start], &arg[x]);
-        }
+        swap1(&arg[position], &arg[i]);
+        solve1(arg, len_of_argv, position + 1);
+        swap1(&arg[position], &arg[i]);
     }
 }
 
 int main(int argc, char **argv)
 {
     if(argc != 2)
-    {
-        fprintf(stderr, "Error: wrong number of arguments.\n");
         return 1;
-    }
     char *arg = strdup(argv[1]);
-    int length = strlen(argv[1]);
+    int len_of_argv = strlen(argv[1]);
     sorting(arg);
-    solve(arg, 0, length);
-    free(arg);
+    solve1(arg, len_of_argv, 0);
 }
